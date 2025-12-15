@@ -582,19 +582,43 @@
                 return <LoginScreen />;
             }
 
-            // Show profile warning if no company
-            if (!userProfile || !userProfile.company_id) {
+            // Show profile warning if no profile exists
+            if (!userProfile) {
                 return (
                     <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
                         <div className="max-w-md text-center">
                             <h1 className="plaak text-6xl mb-6">⚠️</h1>
-                            <h2 className="plaak text-4xl mb-4">Profile Incomplete</h2>
+                            <h2 className="plaak text-4xl mb-4">Profile Not Found</h2>
                             <p className="text-xl mb-6">
-                                Your account is not associated with a company. Please contact your administrator.
+                                No profile found for your account. Creating a temporary profile...
                             </p>
                             <button 
-                                onClick={() => supabase.auth.signOut()} 
+                                onClick={async () => {
+                                    // Create a basic profile
+                                    const { error } = await supabase
+                                        .from('user_profiles')
+                                        .insert({
+                                            id: session.user.id,
+                                            email: session.user.email,
+                                            company_id: null,
+                                            full_name: session.user.email.split('@')[0],
+                                            role: 'member'
+                                        });
+                                    
+                                    if (error) {
+                                        alert('Error creating profile: ' + error.message);
+                                    } else {
+                                        alert('Profile created! Refreshing...');
+                                        window.location.reload();
+                                    }
+                                }} 
                                 className="bg-white text-black px-8 py-4 text-xl font-bold"
+                            >
+                                Create Profile
+                            </button>
+                            <button 
+                                onClick={() => supabase.auth.signOut()} 
+                                className="bg-red-600 text-white px-8 py-4 text-xl font-bold mt-4 block w-full"
                             >
                                 Sign Out
                             </button>
@@ -1149,7 +1173,7 @@
                         },
                         body: JSON.stringify({
                             user_id: session.user.id,
-                            company_id: userProfile.company_id,
+                            company_id: userProfile.company_id || 'no-company',
                             tool_id: 'woop',
                             data: data,
                             version: '1.0'
