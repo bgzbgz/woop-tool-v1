@@ -285,9 +285,18 @@
             useEffect(() => {
                 const saved = localStorage.getItem('woopData');
                 if (saved) {
-                    const parsed = JSON.parse(saved);
-                    setData(parsed.data);
-                    setCurrentSlide(parsed.currentSlide);
+                    try {
+                        const parsed = JSON.parse(saved);
+                        // Ensure obstacles array exists
+                        if (parsed.data && Array.isArray(parsed.data.obstacles)) {
+                            setData(parsed.data);
+                            setCurrentSlide(parsed.currentSlide);
+                        }
+                    } catch (e) {
+                        console.log('Error loading saved data:', e);
+                        // Clear corrupted data
+                        localStorage.removeItem('woopData');
+                    }
                 }
             }, []);
             
@@ -347,7 +356,8 @@
             };
             
             // Slide configurations
-            const totalMainSlides = 3 + 6 + (data.obstacles.length * 2) + 3; // End game + Steps + Obstacles + First Action
+            const obstaclesCount = (data.obstacles && Array.isArray(data.obstacles)) ? data.obstacles.length : 1;
+            const totalMainSlides = 3 + 6 + (obstaclesCount * 2) + 3; // End game + Steps + Obstacles + First Action
             const progress = Math.min(currentSlide / totalMainSlides, 1);
             
             // Render current slide
@@ -520,7 +530,7 @@
                 const obstacleIndex = Math.floor(obstacleSlideIndex / 2);
                 const isObstacleProblem = obstacleSlideIndex % 2 === 0;
                 
-                if (obstacleIndex < data.obstacles.length) {
+                if (data.obstacles && Array.isArray(data.obstacles) && obstacleIndex < data.obstacles.length) {
                     if (isObstacleProblem) {
                         // Problem slide
                         return (
@@ -579,8 +589,9 @@
                 }
                 
                 // After obstacles: Add more or continue?
-                const addMoreSlide = obstacleStartSlide + (data.obstacles.length * 2);
-                if (currentSlide === addMoreSlide && data.obstacles.length < 5) {
+                const currentObstaclesCount = (data.obstacles && Array.isArray(data.obstacles)) ? data.obstacles.length : 1;
+                const addMoreSlide = obstacleStartSlide + (currentObstaclesCount * 2);
+                if (currentSlide === addMoreSlide && currentObstaclesCount < 5) {
                     return (
                         <SlideFullScreen
                             number="03"
@@ -588,7 +599,7 @@
                         >
                             <div className="text-center max-w-2xl">
                                 <p className="text-xl mb-12 text-gray-600">
-                                    You've identified {data.obstacles.length} obstacle{data.obstacles.length > 1 ? 's' : ''}.
+                                    You've identified {currentObstaclesCount} obstacle{currentObstaclesCount > 1 ? 's' : ''}.
                                     <br />
                                     Want to add another?
                                 </p>
@@ -625,7 +636,7 @@
                 }
                 
                 // Big Chunks slide
-                const bigChunksSlide = addMoreSlide + (data.obstacles.length < 5 ? 1 : 0);
+                const bigChunksSlide = addMoreSlide + (currentObstaclesCount < 5 ? 1 : 0);
                 if (currentSlide === bigChunksSlide) {
                     return (
                         <Slide
@@ -894,7 +905,7 @@
                                     [O] THE STEPS
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {data.steps.filter(s => s.trim()).map((step, index) => (
+                                    {data.steps && Array.isArray(data.steps) && data.steps.filter(s => s.trim()).map((step, index) => (
                                         <div key={index} className="border-2 border-black p-4">
                                             <div className="monument text-xs mb-2">STEP {index + 1}</div>
                                             <p>{step}</p>
@@ -913,7 +924,7 @@
                                 <div className="bg-black text-white px-4 py-2 inline-block mb-4 monument text-sm">
                                     [O] THE OBSTACLES
                                 </div>
-                                {data.obstacles.map((obstacle, index) => (
+                                {data.obstacles && Array.isArray(data.obstacles) && data.obstacles.map((obstacle, index) => (
                                     <div key={index} className="bg-red-50 border-l-4 border-red-500 p-4 mb-3">
                                         <div className="font-bold mb-2">
                                             Problem: {obstacle.problem}
