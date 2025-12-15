@@ -8,7 +8,6 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         @font-face {
@@ -40,6 +39,7 @@
             color: #000000;
             background: #FFFFFF;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
         
         .plaak {
@@ -54,171 +54,11 @@
             letter-spacing: 0.05em;
         }
         
-        .smooth {
-            transition: all 0.2s ease;
-        }
-        
-        .worksheet-input {
-            border: 2px solid #E0E0E0;
-            padding: 12px 16px;
-            font-family: 'Riforma', sans-serif;
-            font-size: 16px;
-            transition: border-color 0.2s ease;
-            width: 100%;
-        }
-        
-        .worksheet-input:focus {
-            outline: none;
-            border-color: #000000;
-        }
-        
-        .worksheet-textarea {
-            border: 2px solid #E0E0E0;
-            padding: 12px 16px;
-            font-family: 'Riforma', sans-serif;
-            font-size: 16px;
-            transition: border-color 0.2s ease;
-            width: 100%;
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .worksheet-textarea:focus {
-            outline: none;
-            border-color: #000000;
-        }
-        
-        .btn-primary {
-            background: #000000;
-            color: #FFFFFF;
-            padding: 12px 24px;
-            border: 2px solid #000000;
-            font-family: 'Riforma', sans-serif;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .btn-primary:disabled {
-            background: #E0E0E0;
-            color: #9CA3AF;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        
-        .btn-secondary {
-            background: #FFFFFF;
-            color: #000000;
-            padding: 12px 24px;
-            border: 2px solid #000000;
-            font-family: 'Riforma', sans-serif;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-secondary:hover {
-            background: #F8F8F8;
-        }
-        
-        .numbered-section {
-            background: #000000;
-            color: #FFFFFF;
-            padding: 10px 16px;
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            display: inline-block;
-        }
-        
-        .context-box {
-            background: #F8F8F8;
-            border-left: 4px solid #000000;
-            padding: 24px;
-        }
-        
-        .progress-dot {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid #000000;
-            transition: all 0.2s ease;
-        }
-        
-        .progress-dot.active {
-            background: #000000;
-        }
-        
-        .progress-dot.completed {
-            background: #000000;
-        }
-        
-        .zone-green {
-            background: #E8F5E9;
-            border: 2px solid #4CAF50;
-        }
-        
-        .zone-yellow {
-            background: #FFF9C4;
-            border: 2px solid #FDD835;
-        }
-        
-        .zone-red {
-            background: #FFEBEE;
-            border: 2px solid #EF5350;
-        }
-        
-        .step-card {
-            border: 3px solid #000000;
-            padding: 24px;
-            background: #FFFFFF;
-        }
-        
-        .obstacle-item {
-            border-left: 4px solid #EF5350;
-            padding: 16px;
-            background: #FFEBEE;
-            margin-bottom: 12px;
-        }
-        
-        .action-badge {
-            background: #4CAF50;
-            color: #FFFFFF;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        
-        .canvas-output {
-            border: 4px solid #000000;
-            padding: 32px;
-            background: #FFFFFF;
-        }
-        
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            
-            body {
-                background: #FFFFFF;
-            }
-        }
-        
-        .animate-slide-in {
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        @keyframes slideIn {
+        /* Slide Animations */
+        @keyframes slideInRight {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateX(30px);
             }
             to {
                 opacity: 1;
@@ -226,16 +66,155 @@
             }
         }
         
-        .energy-pulse {
-            animation: pulse 2s ease-in-out infinite;
+        @keyframes slideOutLeft {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
         }
         
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
+        .slide-enter {
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .slide-exit {
+            animation: slideOutLeft 0.3s ease-out;
+        }
+        
+        /* Input Styles */
+        .typeform-input {
+            border: none;
+            border-bottom: 3px solid #E0E0E0;
+            padding: 16px 0;
+            font-family: 'Riforma', sans-serif;
+            font-size: 24px;
+            transition: border-color 0.2s ease;
+            width: 100%;
+            background: transparent;
+        }
+        
+        .typeform-input:focus {
+            outline: none;
+            border-bottom-color: #000000;
+        }
+        
+        .typeform-textarea {
+            border: none;
+            border-bottom: 3px solid #E0E0E0;
+            padding: 16px 0;
+            font-family: 'Riforma', sans-serif;
+            font-size: 24px;
+            transition: border-color 0.2s ease;
+            width: 100%;
+            background: transparent;
+            min-height: 120px;
+            resize: none;
+        }
+        
+        .typeform-textarea:focus {
+            outline: none;
+            border-bottom-color: #000000;
+        }
+        
+        .typeform-input::placeholder,
+        .typeform-textarea::placeholder {
+            color: #B0B0B0;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 16px 32px;
+            border: none;
+            font-family: 'Riforma', sans-serif;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary:disabled {
+            background: #E0E0E0;
+            color: #9CA3AF;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #000000;
+            padding: 16px 32px;
+            border: 2px solid #000000;
+            font-family: 'Riforma', sans-serif;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+        
+        .btn-secondary:hover {
+            background: #F8F8F8;
+        }
+        
+        /* Progress Dots */
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.active {
+            background: #000000;
+            width: 32px;
+            border-radius: 6px;
+        }
+        
+        .progress-dot.completed {
+            background: #000000;
+        }
+        
+        /* Checkbox */
+        .checkbox-custom {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #000000;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-custom:checked {
+            background: #000000;
+        }
+        
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
             }
-            50% {
-                opacity: 0.7;
+            
+            body {
+                background: #FFFFFF;
             }
         }
     </style>
@@ -255,44 +234,44 @@
         };
 
         function WOOPTool() {
-            const [currentStep, setCurrentStep] = useState(1);
-            const [showCanvas, setShowCanvas] = useState(false);
+            const [currentSlide, setCurrentSlide] = useState(0);
+            const [direction, setDirection] = useState('forward');
             
-            // Step 1: WISH (End Game)
-            const [wish, setWish] = useState({
+            // Data state
+            const [data, setData] = useState({
+                // Step 1: End Game (slides 0-2)
                 outcome: '',
                 worldChange: '',
-                feeling: ''
-            });
-            
-            // Step 2: OUTCOME (The Steps)
-            const [outcomes, setOutcomes] = useState(['', '', '', '']);
-            const [mentallyRehearsed, setMentallyRehearsed] = useState(false);
-            
-            // Step 3: OBSTACLE (Difficulties)
-            const [obstacles, setObstacles] = useState([
-                { problem: '', solution: '' }
-            ]);
-            
-            // Step 4: PLAN (First Action)
-            const [plan, setPlan] = useState({
-                bigSteps: ['', '', ''],
+                feeling: '',
+                
+                // Step 2: Steps (slides 3-8)
+                steps: ['', '', '', '', ''],
+                mentallyRehearsed: false,
+                
+                // Step 3: Obstacles (slides 9+)
+                obstacles: [{ problem: '', solution: '' }],
+                
+                // Step 4: First Action
+                bigChunks: '',
                 firstAction: '',
                 deadline: ''
             });
             
+            const inputRef = useRef(null);
             const autosaveTimer = useRef(null);
             
-            // Auto-save functionality
+            // Auto-save
             useEffect(() => {
                 if (autosaveTimer.current) {
                     clearTimeout(autosaveTimer.current);
                 }
                 
                 autosaveTimer.current = setTimeout(() => {
-                    saveToLocalStorage();
-                    // Optionally send to webhook
-                    // sendToWebhook(CONFIG.AUTOSAVE_WEBHOOK, getAllData());
+                    localStorage.setItem('woopData', JSON.stringify({
+                        data,
+                        currentSlide,
+                        timestamp: new Date().toISOString()
+                    }));
                 }, CONFIG.AUTOSAVE_DELAY);
                 
                 return () => {
@@ -300,719 +279,585 @@
                         clearTimeout(autosaveTimer.current);
                     }
                 };
-            }, [wish, outcomes, obstacles, plan]);
+            }, [data, currentSlide]);
             
-            // Load from localStorage on mount
+            // Load saved data
             useEffect(() => {
-                loadFromLocalStorage();
-            }, []);
-            
-            const getAllData = () => {
-                return {
-                    wish,
-                    outcomes,
-                    mentallyRehearsed,
-                    obstacles,
-                    plan,
-                    timestamp: new Date().toISOString()
-                };
-            };
-            
-            const saveToLocalStorage = () => {
-                localStorage.setItem('woopData', JSON.stringify(getAllData()));
-            };
-            
-            const loadFromLocalStorage = () => {
                 const saved = localStorage.getItem('woopData');
                 if (saved) {
-                    const data = JSON.parse(saved);
-                    setWish(data.wish || { outcome: '', worldChange: '', feeling: '' });
-                    setOutcomes(data.outcomes || ['', '', '', '']);
-                    setMentallyRehearsed(data.mentallyRehearsed || false);
-                    setObstacles(data.obstacles || [{ problem: '', solution: '' }]);
-                    setPlan(data.plan || { bigSteps: ['', '', ''], firstAction: '', deadline: '' });
+                    const parsed = JSON.parse(saved);
+                    setData(parsed.data);
+                    setCurrentSlide(parsed.currentSlide);
                 }
-            };
+            }, []);
             
-            const sendToWebhook = async (url, data) => {
-                try {
-                    await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                } catch (error) {
-                    console.error('Webhook error:', error);
+            // Focus input on slide change
+            useEffect(() => {
+                if (inputRef.current) {
+                    inputRef.current.focus();
                 }
+            }, [currentSlide]);
+            
+            const updateData = (field, value) => {
+                setData(prev => ({ ...prev, [field]: value }));
             };
             
-            // Validation functions
-            const isStep1Valid = () => {
-                return wish.outcome.trim().length > 20 && 
-                       wish.worldChange.trim().length > 10 && 
-                       wish.feeling.trim().length > 5;
-            };
-            
-            const isStep2Valid = () => {
-                const filledOutcomes = outcomes.filter(o => o.trim().length > 10);
-                return filledOutcomes.length >= 3 && mentallyRehearsed;
-            };
-            
-            const isStep3Valid = () => {
-                return obstacles.length >= 2 && 
-                       obstacles.every(o => o.problem.trim().length > 10 && o.solution.trim().length > 10);
-            };
-            
-            const isStep4Valid = () => {
-                const filledBigSteps = plan.bigSteps.filter(s => s.trim().length > 5);
-                return filledBigSteps.length >= 2 && 
-                       plan.firstAction.trim().length > 10 && 
-                       plan.deadline.trim().length > 0;
-            };
-            
-            const addObstacle = () => {
-                if (obstacles.length < 5) {
-                    setObstacles([...obstacles, { problem: '', solution: '' }]);
-                }
+            const updateStep = (index, value) => {
+                setData(prev => ({
+                    ...prev,
+                    steps: prev.steps.map((s, i) => i === index ? value : s)
+                }));
             };
             
             const updateObstacle = (index, field, value) => {
-                const newObstacles = [...obstacles];
-                newObstacles[index][field] = value;
-                setObstacles(newObstacles);
+                setData(prev => ({
+                    ...prev,
+                    obstacles: prev.obstacles.map((o, i) => 
+                        i === index ? { ...o, [field]: value } : o
+                    )
+                }));
             };
             
-            const removeObstacle = (index) => {
-                if (obstacles.length > 1) {
-                    setObstacles(obstacles.filter((_, i) => i !== index));
+            const addObstacle = () => {
+                setData(prev => ({
+                    ...prev,
+                    obstacles: [...prev.obstacles, { problem: '', solution: '' }]
+                }));
+            };
+            
+            const nextSlide = () => {
+                setDirection('forward');
+                setCurrentSlide(prev => prev + 1);
+            };
+            
+            const prevSlide = () => {
+                setDirection('backward');
+                setCurrentSlide(prev => Math.max(0, prev - 1));
+            };
+            
+            const goToCanvas = () => {
+                setCurrentSlide(999); // Canvas slide
+            };
+            
+            const handleKeyPress = (e, validation) => {
+                if (e.key === 'Enter' && !e.shiftKey && validation()) {
+                    e.preventDefault();
+                    nextSlide();
                 }
             };
             
-            const handleNext = () => {
-                if (currentStep < 4) {
-                    setCurrentStep(currentStep + 1);
-                    window.scrollTo(0, 0);
-                }
-            };
+            // Slide configurations
+            const totalMainSlides = 3 + 6 + (data.obstacles.length * 2) + 3; // End game + Steps + Obstacles + First Action
+            const progress = Math.min(currentSlide / totalMainSlides, 1);
             
-            const handleBack = () => {
-                if (currentStep > 1) {
-                    setCurrentStep(currentStep - 1);
-                    window.scrollTo(0, 0);
-                }
-            };
-            
-            const handleViewCanvas = () => {
-                setShowCanvas(true);
-                window.scrollTo(0, 0);
-            };
-            
-            const handleFinalSubmit = async () => {
-                await sendToWebhook(CONFIG.SUBMIT_WEBHOOK, {
-                    ...getAllData(),
-                    status: 'submitted',
-                    completedAt: new Date().toISOString()
-                });
-                alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
-            };
-            
-            const handleShare = async () => {
-                await sendToWebhook(CONFIG.SHARE_WEBHOOK, {
-                    ...getAllData(),
-                    action: 'share_with_team'
-                });
-                alert('✅ Shared with your team! Accountability activated.');
-            };
-            
-            const exportPDF = () => {
-                window.print();
-            };
-            
-            if (showCanvas) {
-                return <CanvasView 
-                    data={getAllData()} 
-                    onBack={() => setShowCanvas(false)}
-                    onSubmit={handleFinalSubmit}
-                    onShare={handleShare}
-                    onExport={exportPDF}
-                />;
-            }
-            
-            return (
-                <div className="min-h-screen bg-white">
-                    {/* Header */}
-                    <header className="border-b-4 border-black p-6">
-                        <div className="max-w-6xl mx-auto">
-                            <h1 className="plaak text-4xl mb-2">WOOP</h1>
-                            <p className="text-gray-600">Wish, Outcome, Obstacle, Plan</p>
-                        </div>
-                    </header>
-                    
-                    {/* Progress Bar */}
-                    <div className="no-print border-b-2 border-gray-200 bg-gray-50 p-4">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className={`progress-dot ${currentStep >= 1 ? 'completed' : ''} ${currentStep === 1 ? 'active' : ''}`}></div>
-                                        <span className="monument text-xs">WISH</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`progress-dot ${currentStep >= 2 ? 'completed' : ''} ${currentStep === 2 ? 'active' : ''}`}></div>
-                                        <span className="monument text-xs">OUTCOME</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`progress-dot ${currentStep >= 3 ? 'completed' : ''} ${currentStep === 3 ? 'active' : ''}`}></div>
-                                        <span className="monument text-xs">OBSTACLE</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`progress-dot ${currentStep >= 4 ? 'completed' : ''} ${currentStep === 4 ? 'active' : ''}`}></div>
-                                        <span className="monument text-xs">PLAN</span>
-                                    </div>
-                                </div>
-                                <div className="monument text-xs text-gray-600">
-                                    STEP {currentStep}/4
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Main Content */}
-                    <div className="max-w-6xl mx-auto p-6">
-                        <div className="flex gap-6">
-                            {/* Left Sidebar - Context */}
-                            <div className="w-80 flex-shrink-0">
-                                <div className="context-box sticky top-6">
-                                    {currentStep === 1 && <Step1Context />}
-                                    {currentStep === 2 && <Step2Context />}
-                                    {currentStep === 3 && <Step3Context />}
-                                    {currentStep === 4 && <Step4Context />}
-                                </div>
-                            </div>
-                            
-                            {/* Right Content - Input Area */}
-                            <div className="flex-1">
-                                <div className="animate-slide-in">
-                                    {currentStep === 1 && (
-                                        <Step1Input 
-                                            wish={wish} 
-                                            setWish={setWish}
-                                            isValid={isStep1Valid()}
-                                            onNext={handleNext}
-                                        />
-                                    )}
-                                    {currentStep === 2 && (
-                                        <Step2Input 
-                                            outcomes={outcomes}
-                                            setOutcomes={setOutcomes}
-                                            mentallyRehearsed={mentallyRehearsed}
-                                            setMentallyRehearsed={setMentallyRehearsed}
-                                            isValid={isStep2Valid()}
-                                            onNext={handleNext}
-                                            onBack={handleBack}
-                                        />
-                                    )}
-                                    {currentStep === 3 && (
-                                        <Step3Input 
-                                            obstacles={obstacles}
-                                            updateObstacle={updateObstacle}
-                                            addObstacle={addObstacle}
-                                            removeObstacle={removeObstacle}
-                                            isValid={isStep3Valid()}
-                                            onNext={handleNext}
-                                            onBack={handleBack}
-                                        />
-                                    )}
-                                    {currentStep === 4 && (
-                                        <Step4Input 
-                                            plan={plan}
-                                            setPlan={setPlan}
-                                            isValid={isStep4Valid()}
-                                            onViewCanvas={handleViewCanvas}
-                                            onBack={handleBack}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        // Step 1 Context Component
-        function Step1Context() {
-            return (
-                <>
-                    <h2 className="plaak text-3xl mb-4">WHY</h2>
-                    <p className="mb-4">
-                        Dreams create energy. Clarity of your dream creates comfort.
-                    </p>
-                    <p className="mb-4">
-                        Your brain doesn't differentiate between what's in your head and reality. When you clearly visualize your end game, you feel comfort moving toward it.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">WHAT</h2>
-                    <p className="mb-4">
-                        Define your end game for the Fast Track program with brutal clarity.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">HOW</h2>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>Picture the concrete outcome</li>
-                        <li>Describe how the world changed</li>
-                        <li>Feel the emotion of success</li>
-                    </ol>
-                </>
-            );
-        }
-
-        // Step 2 Context Component
-        function Step2Context() {
-            return (
-                <>
-                    <h2 className="plaak text-3xl mb-4">WHY</h2>
-                    <p className="mb-4">
-                        Mental rehearsal works. Lewis Hamilton mentally drives each lap before stepping in the car.
-                    </p>
-                    <p className="mb-4">
-                        When you mentally rehearse the steps, you gain brutal clarity on what needs to happen—how and when.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">WHAT</h2>
-                    <p className="mb-4">
-                        Map the journey from where you are to your end game.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">HOW</h2>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>List 3-5 key milestones</li>
-                        <li>Close your eyes</li>
-                        <li>See yourself doing each step</li>
-                        <li>Confirm when ready</li>
-                    </ol>
-                </>
-            );
-        }
-
-        // Step 3 Context Component
-        function Step3Context() {
-            return (
-                <>
-                    <h2 className="plaak text-3xl mb-4">WHY</h2>
-                    <p className="mb-4">
-                        You need to be mentally prepared. When the problem comes, you'll get happy and excited because you've already seen it.
-                    </p>
-                    <p className="mb-4">
-                        You'll simply say: "Nothing new to me."
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">WHAT</h2>
-                    <p className="mb-4">
-                        Identify what will try to stop you, and decide now how you'll respond.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">HOW</h2>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>List the problems you'll face</li>
-                        <li>For each: What will you do?</li>
-                        <li>Visualize handling each one</li>
-                    </ol>
-                </>
-            );
-        }
-
-        // Step 4 Context Component
-        function Step4Context() {
-            return (
-                <>
-                    <h2 className="plaak text-3xl mb-4">WHY</h2>
-                    <p className="mb-4">
-                        Big steps are intimidating. Fast Track hates big steps.
-                    </p>
-                    <p className="mb-4">
-                        Cut the elephant into pieces. Choose the smallest, easiest part to eat first.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">WHAT</h2>
-                    <p className="mb-4">
-                        Break down your journey and commit to the easiest first action.
-                    </p>
-                    <h2 className="plaak text-3xl mb-4 mt-8">HOW</h2>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>List the big chunks of work</li>
-                        <li>Pick the easiest piece</li>
-                        <li>Set a specific deadline</li>
-                        <li>Commit publicly</li>
-                    </ol>
-                </>
-            );
-        }
-
-        // Step 1 Input Component
-        function Step1Input({ wish, setWish, isValid, onNext }) {
-            return (
-                <div className="step-card">
-                    <div className="numbered-section mb-6">[01] YOUR END GAME</div>
-                    
-                    <div className="mb-6">
-                        <label className="block font-bold mb-2">
-                            What have you achieved? What's the concrete outcome?
-                        </label>
-                        <textarea 
-                            className="worksheet-textarea"
-                            value={wish.outcome}
-                            onChange={(e) => setWish({...wish, outcome: e.target.value})}
-                            placeholder="It's 90 days from now. The Fast Track program is done. Describe in vivid detail what you've achieved. Be specific: numbers, metrics, tangible results."
-                        />
-                        <div className="text-sm text-gray-600 mt-1">
-                            {wish.outcome.length}/300 characters (min 20)
-                        </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                        <label className="block font-bold mb-2">
-                            How has the world changed?
-                        </label>
-                        <textarea 
-                            className="worksheet-textarea"
-                            value={wish.worldChange}
-                            onChange={(e) => setWish({...wish, worldChange: e.target.value})}
-                            placeholder="My team operates differently. Our clients notice the change. Our revenue reflects the transformation."
-                        />
-                        <div className="text-sm text-gray-600 mt-1">
-                            {wish.worldChange.length}/200 characters (min 10)
-                        </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                        <label className="block font-bold mb-2">
-                            How do you feel about it?
-                        </label>
-                        <input 
-                            type="text"
-                            className="worksheet-input"
-                            value={wish.feeling}
-                            onChange={(e) => setWish({...wish, feeling: e.target.value})}
-                            placeholder="Energized. Proud. Unstoppable. Clear. In control."
-                        />
-                        <div className="text-sm text-gray-600 mt-1">
-                            One word or short phrase that captures your emotion
-                        </div>
-                    </div>
-                    
-                    {!isValid && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
-                            <p className="text-sm">
-                                <strong>Clarity Check:</strong> Be specific. Your end game needs vivid detail to create energy.
-                            </p>
-                        </div>
-                    )}
-                    
-                    {isValid && (
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 energy-pulse">
-                            <p className="text-sm font-bold">
-                                ✓ End game locked in. Energy created.
-                            </p>
-                        </div>
-                    )}
-                    
-                    <div className="flex justify-end">
-                        <button 
-                            className="btn-primary"
-                            onClick={onNext}
-                            disabled={!isValid}
+            // Render current slide
+            const renderSlide = () => {
+                // Slide 0: Outcome
+                if (currentSlide === 0) {
+                    return (
+                        <Slide
+                            number="01"
+                            title="What have you achieved?"
+                            subtitle="What's the concrete outcome?"
+                            helper="It's 90 days from now. The Fast Track program is done. Describe in vivid detail what you've achieved. Be specific."
                         >
-                            Next: Map The Steps →
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // Step 2 Input Component
-        function Step2Input({ outcomes, setOutcomes, mentallyRehearsed, setMentallyRehearsed, isValid, onNext, onBack }) {
-            const updateOutcome = (index, value) => {
-                const newOutcomes = [...outcomes];
-                newOutcomes[index] = value;
-                setOutcomes(newOutcomes);
-            };
-            
-            return (
-                <div className="step-card">
-                    <div className="numbered-section mb-6">[02] THE STEPS</div>
-                    
-                    <p className="mb-6">
-                        What are the 3-5 key milestones you need to hit to reach your end game?
-                    </p>
-                    
-                    {outcomes.map((outcome, index) => (
-                        <div key={index} className="mb-4">
-                            <label className="block font-bold mb-2">
-                                Step {index + 1} {index < 3 && <span className="text-red-500">*</span>}
-                            </label>
-                            <input 
+                            <textarea
+                                ref={inputRef}
+                                className="typeform-textarea"
+                                value={data.outcome}
+                                onChange={(e) => updateData('outcome', e.target.value)}
+                                placeholder="Our team is aligned on 3 core values. We've implemented the ABC delegation system. Weekly metrics dashboard is live..."
+                                maxLength={300}
+                                onKeyDown={(e) => handleKeyPress(e, () => data.outcome.length >= 20)}
+                            />
+                            <CharCounter current={data.outcome.length} max={300} min={20} />
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                canNext={data.outcome.length >= 20}
+                                showBack={false}
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // Slide 1: World Change
+                if (currentSlide === 1) {
+                    return (
+                        <Slide
+                            number="01"
+                            title="How has the world changed?"
+                            helper="Describe the tangible differences. What's different in your business, team, or life?"
+                        >
+                            <textarea
+                                ref={inputRef}
+                                className="typeform-textarea"
+                                value={data.worldChange}
+                                onChange={(e) => updateData('worldChange', e.target.value)}
+                                placeholder="My team makes decisions without me. Clients notice we're more responsive. I have 10 hours/week for strategy."
+                                maxLength={200}
+                                onKeyDown={(e) => handleKeyPress(e, () => data.worldChange.length >= 10)}
+                            />
+                            <CharCounter current={data.worldChange.length} max={200} min={10} />
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                onBack={prevSlide}
+                                canNext={data.worldChange.length >= 10}
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // Slide 2: Feeling
+                if (currentSlide === 2) {
+                    return (
+                        <Slide
+                            number="01"
+                            title="How do you feel about it?"
+                            helper="One word or short phrase that captures your emotion"
+                        >
+                            <input
+                                ref={inputRef}
                                 type="text"
-                                className="worksheet-input"
-                                value={outcome}
-                                onChange={(e) => updateOutcome(index, e.target.value)}
+                                className="typeform-input"
+                                value={data.feeling}
+                                onChange={(e) => updateData('feeling', e.target.value)}
+                                placeholder="Energized. Proud. Unstoppable. Clear. In control."
+                                onKeyDown={(e) => handleKeyPress(e, () => data.feeling.length >= 3)}
+                            />
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                onBack={prevSlide}
+                                canNext={data.feeling.length >= 3}
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // Slides 3-7: Steps (5 milestones)
+                if (currentSlide >= 3 && currentSlide <= 7) {
+                    const stepIndex = currentSlide - 3;
+                    const stepNumber = stepIndex + 1;
+                    const isRequired = stepIndex < 3;
+                    
+                    return (
+                        <Slide
+                            number="02"
+                            title={`Key milestone ${stepNumber}${!isRequired ? ' (optional)' : ''}`}
+                            helper="What's one critical step you need to achieve on the path to your end game?"
+                        >
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                className="typeform-input"
+                                value={data.steps[stepIndex]}
+                                onChange={(e) => updateStep(stepIndex, e.target.value)}
                                 placeholder={[
                                     "Align team on core values and 3 critical moves",
                                     "Implement ABC system for delegation clarity",
                                     "Launch weekly review cadence with metrics",
-                                    "Optimize personal energy routines"
-                                ][index]}
+                                    "Optimize personal energy routines",
+                                    "Build strategic planning rhythm"
+                                ][stepIndex]}
+                                onKeyDown={(e) => handleKeyPress(e, () => !isRequired || data.steps[stepIndex].length >= 5)}
                             />
-                        </div>
-                    ))}
-                    
-                    <div className="bg-gray-50 border-2 border-black p-6 my-6">
-                        <h3 className="plaak text-xl mb-4">MENTAL REHEARSAL</h3>
-                        <p className="mb-4">
-                            Close your eyes. Picture yourself completing each step above. See the details. Feel the momentum.
-                        </p>
-                        <label className="flex items-center gap-3 cursor-pointer">
-                            <input 
-                                type="checkbox"
-                                checked={mentallyRehearsed}
-                                onChange={(e) => setMentallyRehearsed(e.target.checked)}
-                                className="w-6 h-6"
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                onBack={prevSlide}
+                                canNext={!isRequired || data.steps[stepIndex].length >= 5}
                             />
-                            <span className="font-bold">
-                                I've mentally rehearsed each step. I can see exactly what needs to happen.
-                            </span>
-                        </label>
-                    </div>
-                    
-                    {!isValid && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
-                            <p className="text-sm">
-                                <strong>Clarity Check:</strong> Fill in at least 3 steps and complete your mental rehearsal.
-                            </p>
-                        </div>
-                    )}
-                    
-                    {isValid && (
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 energy-pulse">
-                            <p className="text-sm font-bold">
-                                ✓ Path is clear. You know exactly what to do.
-                            </p>
-                        </div>
-                    )}
-                    
-                    <div className="flex justify-between">
-                        <button className="btn-secondary" onClick={onBack}>
-                            ← Back
-                        </button>
-                        <button 
-                            className="btn-primary"
-                            onClick={onNext}
-                            disabled={!isValid}
+                        </Slide>
+                    );
+                }
+                
+                // Slide 8: Mental Rehearsal
+                if (currentSlide === 8) {
+                    return (
+                        <SlideFullScreen
+                            number="02"
+                            title="MENTAL REHEARSAL"
                         >
-                            Next: Anticipate Obstacles →
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // Step 3 Input Component
-        function Step3Input({ obstacles, updateObstacle, addObstacle, removeObstacle, isValid, onNext, onBack }) {
-            return (
-                <div className="step-card">
-                    <div className="numbered-section mb-6">[03] THE OBSTACLES</div>
-                    
-                    <p className="mb-6">
-                        What difficulties will you face on your way to the end game? When these problems occur, what will you do?
-                    </p>
-                    
-                    {obstacles.map((obstacle, index) => (
-                        <div key={index} className="obstacle-item mb-4">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="font-bold">Obstacle {index + 1}</span>
-                                {obstacles.length > 1 && (
-                                    <button 
-                                        onClick={() => removeObstacle(index)}
-                                        className="text-red-600 text-sm hover:underline"
+                            <div className="text-center max-w-2xl">
+                                <p className="text-2xl mb-6 leading-relaxed">
+                                    Close your eyes.
+                                </p>
+                                <p className="text-2xl mb-6 leading-relaxed">
+                                    Picture yourself completing each step.
+                                </p>
+                                <p className="text-2xl mb-6 leading-relaxed">
+                                    See the details. Feel the momentum.
+                                </p>
+                                <p className="text-xl mb-12 text-gray-600 italic">
+                                    Lewis Hamilton mentally drives each lap before stepping in the car.
+                                </p>
+                                
+                                <label className="flex items-center justify-center gap-4 cursor-pointer text-xl">
+                                    <input
+                                        type="checkbox"
+                                        className="checkbox-custom"
+                                        checked={data.mentallyRehearsed}
+                                        onChange={(e) => updateData('mentallyRehearsed', e.target.checked)}
+                                    />
+                                    <span className="font-bold">
+                                        I've mentally rehearsed each step. I can see exactly what needs to happen.
+                                    </span>
+                                </label>
+                                
+                                <div className="mt-12">
+                                    <NavigationButtons
+                                        onNext={nextSlide}
+                                        onBack={prevSlide}
+                                        canNext={data.mentallyRehearsed}
+                                    />
+                                </div>
+                            </div>
+                        </SlideFullScreen>
+                    );
+                }
+                
+                // Slides 9+: Obstacles (dynamic based on number of obstacles)
+                const obstacleStartSlide = 9;
+                const obstacleSlideIndex = currentSlide - obstacleStartSlide;
+                const obstacleIndex = Math.floor(obstacleSlideIndex / 2);
+                const isObstacleProblem = obstacleSlideIndex % 2 === 0;
+                
+                if (obstacleIndex < data.obstacles.length) {
+                    if (isObstacleProblem) {
+                        // Problem slide
+                        return (
+                            <Slide
+                                number="03"
+                                title={`Obstacle ${obstacleIndex + 1}: What's the problem?`}
+                                helper="What difficulty will you face on your way to the end game?"
+                            >
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    className="typeform-input"
+                                    value={data.obstacles[obstacleIndex].problem}
+                                    onChange={(e) => updateObstacle(obstacleIndex, 'problem', e.target.value)}
+                                    placeholder="Team resistance to new system. Urgent client fires eating my time. My own procrastination."
+                                    onKeyDown={(e) => handleKeyPress(e, () => data.obstacles[obstacleIndex].problem.length >= 5)}
+                                />
+                                <NavigationButtons
+                                    onNext={nextSlide}
+                                    onBack={prevSlide}
+                                    canNext={data.obstacles[obstacleIndex].problem.length >= 5}
+                                />
+                            </Slide>
+                        );
+                    } else {
+                        // Solution slide
+                        return (
+                            <Slide
+                                number="03"
+                                title={`When "${data.obstacles[obstacleIndex].problem}" happens...`}
+                                subtitle="What will you do?"
+                                helper="Be specific. Have a clear action plan."
+                            >
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    className="typeform-input"
+                                    value={data.obstacles[obstacleIndex].solution}
+                                    onChange={(e) => updateObstacle(obstacleIndex, 'solution', e.target.value)}
+                                    placeholder="I'll schedule 1-on-1s immediately. I'll time-block 'fire hours' and protect deep work. I'll use the 5-second rule."
+                                    onKeyDown={(e) => handleKeyPress(e, () => data.obstacles[obstacleIndex].solution.length >= 5)}
+                                />
+                                <div className="mt-8 text-center">
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        Remember: You'll smile and say "Nothing new to me."
+                                    </p>
+                                </div>
+                                <NavigationButtons
+                                    onNext={nextSlide}
+                                    onBack={prevSlide}
+                                    canNext={data.obstacles[obstacleIndex].solution.length >= 5}
+                                />
+                            </Slide>
+                        );
+                    }
+                }
+                
+                // After obstacles: Add more or continue?
+                const addMoreSlide = obstacleStartSlide + (data.obstacles.length * 2);
+                if (currentSlide === addMoreSlide && data.obstacles.length < 5) {
+                    return (
+                        <SlideFullScreen
+                            number="03"
+                            title="Add another obstacle?"
+                        >
+                            <div className="text-center max-w-2xl">
+                                <p className="text-xl mb-12 text-gray-600">
+                                    You've identified {data.obstacles.length} obstacle{data.obstacles.length > 1 ? 's' : ''}.
+                                    <br />
+                                    Want to add another?
+                                </p>
+                                
+                                <div className="flex gap-4 justify-center">
+                                    <button
+                                        className="btn-secondary"
+                                        onClick={() => {
+                                            addObstacle();
+                                            nextSlide();
+                                        }}
                                     >
-                                        Remove
+                                        + Add Another Obstacle
                                     </button>
-                                )}
+                                    <button
+                                        className="btn-primary"
+                                        onClick={nextSlide}
+                                    >
+                                        Continue →
+                                    </button>
+                                </div>
+                                
+                                <div className="mt-8">
+                                    <button
+                                        className="text-gray-600 hover:text-black transition-colors"
+                                        onClick={prevSlide}
+                                    >
+                                        ← Back
+                                    </button>
+                                </div>
                             </div>
-                            
-                            <div className="mb-3">
-                                <label className="block font-bold mb-2">
-                                    What's the problem?
-                                </label>
-                                <input 
-                                    type="text"
-                                    className="worksheet-input"
-                                    value={obstacle.problem}
-                                    onChange={(e) => updateObstacle(index, 'problem', e.target.value)}
-                                    placeholder="Team resistance to new system. Urgent client fires eating my time. My own procrastination on hard conversations."
-                                />
-                            </div>
-                            
-                            <div>
-                                <label className="block font-bold mb-2">
-                                    When this happens, what will you do?
-                                </label>
-                                <input 
-                                    type="text"
-                                    className="worksheet-input"
-                                    value={obstacle.solution}
-                                    onChange={(e) => updateObstacle(index, 'solution', e.target.value)}
-                                    placeholder="I'll schedule 1-on-1s immediately. I'll time-block 'fire hours' and protect deep work. I'll use the 5-second rule and just start."
-                                />
-                            </div>
-                        </div>
-                    ))}
-                    
-                    {obstacles.length < 5 && (
-                        <button 
-                            onClick={addObstacle}
-                            className="btn-secondary w-full mb-6"
+                        </SlideFullScreen>
+                    );
+                }
+                
+                // Big Chunks slide
+                const bigChunksSlide = addMoreSlide + (data.obstacles.length < 5 ? 1 : 0);
+                if (currentSlide === bigChunksSlide) {
+                    return (
+                        <Slide
+                            number="04"
+                            title="What are the big chunks of work?"
+                            helper="List the major pieces. We'll cut the elephant in the next step."
                         >
-                            + Add Another Obstacle
-                        </button>
-                    )}
-                    
-                    <div className="bg-black text-white p-4 mb-6">
-                        <p className="text-sm">
-                            <strong>Remember:</strong> When these obstacles show up, you'll recognize them instantly. You'll smile and say: "Nothing new to me. I'm prepared."
-                        </p>
-                    </div>
-                    
-                    {!isValid && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
-                            <p className="text-sm">
-                                <strong>Preparation Check:</strong> Identify at least 2 obstacles with specific action plans.
-                            </p>
-                        </div>
-                    )}
-                    
-                    {isValid && (
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 energy-pulse">
-                            <p className="text-sm font-bold">
-                                ✓ You're mentally prepared. Obstacles won't surprise you.
-                            </p>
-                        </div>
-                    )}
-                    
-                    <div className="flex justify-between">
-                        <button className="btn-secondary" onClick={onBack}>
-                            ← Back
-                        </button>
-                        <button 
-                            className="btn-primary"
-                            onClick={onNext}
-                            disabled={!isValid}
+                            <textarea
+                                ref={inputRef}
+                                className="typeform-textarea"
+                                value={data.bigChunks}
+                                onChange={(e) => updateData('bigChunks', e.target.value)}
+                                placeholder="Define and document company values&#10;Build ABC delegation framework&#10;Set up weekly metrics dashboard"
+                                style={{ minHeight: '150px' }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && e.shiftKey) {
+                                        return; // Allow Shift+Enter for new line
+                                    }
+                                    if (e.key === 'Enter' && data.bigChunks.length >= 10) {
+                                        e.preventDefault();
+                                        nextSlide();
+                                    }
+                                }}
+                            />
+                            <div className="text-sm text-gray-600 mt-2">
+                                Press Shift+Enter for new line
+                            </div>
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                onBack={prevSlide}
+                                canNext={data.bigChunks.length >= 10}
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // First Action slide
+                if (currentSlide === bigChunksSlide + 1) {
+                    return (
+                        <Slide
+                            number="04"
+                            title="The smallest, easiest first action?"
+                            subtitle="Cut the elephant. Pick the easiest piece."
+                            helper="What's the one small thing you can do to start?"
                         >
-                            Next: Cut The Elephant →
-                        </button>
-                    </div>
-                </div>
-            );
-        }
-
-        // Step 4 Input Component
-        function Step4Input({ plan, setPlan, isValid, onViewCanvas, onBack }) {
-            const updateBigStep = (index, value) => {
-                const newBigSteps = [...plan.bigSteps];
-                newBigSteps[index] = value;
-                setPlan({...plan, bigSteps: newBigSteps});
+                            <textarea
+                                ref={inputRef}
+                                className="typeform-textarea"
+                                value={data.firstAction}
+                                onChange={(e) => updateData('firstAction', e.target.value)}
+                                placeholder="Schedule 90-minute workshop with leadership team to brainstorm our 5 core values. Book the room. Send the invite. That's it."
+                                style={{ minHeight: '120px' }}
+                            />
+                            <CharCounter current={data.firstAction.length} min={10} />
+                            <NavigationButtons
+                                onNext={nextSlide}
+                                onBack={prevSlide}
+                                canNext={data.firstAction.length >= 10}
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // Deadline slide
+                if (currentSlide === bigChunksSlide + 2) {
+                    return (
+                        <Slide
+                            number="04"
+                            title="By when?"
+                            subtitle="Set a specific deadline"
+                            helper="Commit to a date. Make it real."
+                        >
+                            <input
+                                ref={inputRef}
+                                type="date"
+                                className="typeform-input"
+                                value={data.deadline}
+                                onChange={(e) => updateData('deadline', e.target.value)}
+                                min={new Date().toISOString().split('T')[0]}
+                                style={{ fontSize: '32px', padding: '20px 0' }}
+                            />
+                            <NavigationButtons
+                                onNext={goToCanvas}
+                                onBack={prevSlide}
+                                canNext={data.deadline !== ''}
+                                nextText="View Your Canvas →"
+                            />
+                        </Slide>
+                    );
+                }
+                
+                // Canvas View
+                if (currentSlide === 999) {
+                    return <CanvasView data={data} onBack={() => setCurrentSlide(bigChunksSlide + 2)} />;
+                }
+                
+                return null;
             };
             
             return (
-                <div className="step-card">
-                    <div className="numbered-section mb-6">[04] CUT THE ELEPHANT</div>
-                    
-                    <p className="mb-6 font-bold">
-                        Big steps are intimidating. Break them down. Choose the smallest, easiest piece to start.
-                    </p>
-                    
-                    <div className="mb-6">
-                        <label className="block font-bold mb-2">
-                            What are the big chunks of work?
-                        </label>
-                        {plan.bigSteps.map((step, index) => (
-                            <div key={index} className="mb-2">
-                                <input 
-                                    type="text"
-                                    className="worksheet-input"
-                                    value={step}
-                                    onChange={(e) => updateBigStep(index, e.target.value)}
-                                    placeholder={[
-                                        "Define and document company values",
-                                        "Build ABC delegation framework",
-                                        "Set up weekly metrics dashboard"
-                                    ][index]}
+                <div className="min-h-screen bg-white">
+                    {currentSlide !== 999 && (
+                        <ProgressBar progress={progress} currentSlide={currentSlide} total={totalMainSlides} />
+                    )}
+                    <div className="slide-enter">
+                        {renderSlide()}
+                    </div>
+                </div>
+            );
+        }
+
+        // Progress Bar Component
+        function ProgressBar({ progress, currentSlide, total }) {
+            const dots = 9; // Show 9 progress dots
+            const activeDot = Math.floor((currentSlide / total) * dots);
+            
+            return (
+                <div className="no-print fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-6 py-4 z-50">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="flex items-center justify-center gap-2">
+                            {[...Array(dots)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`progress-dot ${i === activeDot ? 'active' : ''} ${i < activeDot ? 'completed' : ''}`}
                                 />
-                            </div>
-                        ))}
-                    </div>
-                    
-                    <div className="bg-green-50 border-2 border-green-500 p-6 mb-6">
-                        <h3 className="plaak text-xl mb-4">THE FIRST BITE</h3>
-                        
-                        <div className="mb-4">
-                            <label className="block font-bold mb-2">
-                                Which is the smallest, easiest piece you can do first? <span className="text-red-500">*</span>
-                            </label>
-                            <textarea 
-                                className="worksheet-textarea"
-                                value={plan.firstAction}
-                                onChange={(e) => setPlan({...plan, firstAction: e.target.value})}
-                                placeholder="Schedule 90-minute workshop with leadership team to brainstorm our 5 core values. Book the room. Send the invite. That's it."
-                            />
-                        </div>
-                        
-                        <div>
-                            <label className="block font-bold mb-2">
-                                By when? <span className="text-red-500">*</span>
-                            </label>
-                            <input 
-                                type="date"
-                                className="worksheet-input"
-                                value={plan.deadline}
-                                onChange={(e) => setPlan({...plan, deadline: e.target.value})}
-                                min={new Date().toISOString().split('T')[0]}
-                            />
+                            ))}
                         </div>
                     </div>
-                    
-                    {!isValid && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
-                            <p className="text-sm">
-                                <strong>Action Check:</strong> Define your first bite and set a specific deadline.
-                            </p>
+                </div>
+            );
+        }
+
+        // Slide Component (Standard)
+        function Slide({ number, title, subtitle, helper, children }) {
+            return (
+                <div className="min-h-screen flex items-center justify-center px-6 py-24">
+                    <div className="w-full max-w-3xl">
+                        <div className="mb-8">
+                            <div className="monument text-sm text-gray-400 mb-4">[{number}]</div>
+                            <h1 className="plaak text-5xl mb-2">{title}</h1>
+                            {subtitle && (
+                                <h2 className="plaak text-3xl text-gray-600 mb-4">{subtitle}</h2>
+                            )}
+                            {helper && (
+                                <p className="text-lg text-gray-500 mt-4">{helper}</p>
+                            )}
                         </div>
-                    )}
-                    
-                    {isValid && (
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 energy-pulse">
-                            <p className="text-sm font-bold">
-                                ✓ First action locked. You know exactly where to start.
-                            </p>
+                        
+                        <div className="mt-12">
+                            {children}
                         </div>
-                    )}
-                    
-                    <div className="flex justify-between">
-                        <button className="btn-secondary" onClick={onBack}>
-                            ← Back
-                        </button>
-                        <button 
+                    </div>
+                </div>
+            );
+        }
+
+        // Slide Component (Full Screen Centered)
+        function SlideFullScreen({ number, title, children }) {
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center px-6 py-24">
+                    <div className="monument text-sm text-gray-400 mb-4">[{number}]</div>
+                    <h1 className="plaak text-6xl mb-12 text-center">{title}</h1>
+                    {children}
+                </div>
+            );
+        }
+
+        // Character Counter Component
+        function CharCounter({ current, max, min }) {
+            const isValid = current >= min;
+            const color = isValid ? 'text-green-600' : 'text-gray-400';
+            
+            return (
+                <div className={`text-sm mt-2 ${color}`}>
+                    {current}{max ? `/${max}` : ''} characters
+                    {min && !isValid && ` (min ${min})`}
+                    {isValid && ' ✓'}
+                </div>
+            );
+        }
+
+        // Navigation Buttons Component
+        function NavigationButtons({ onNext, onBack, canNext = true, showBack = true, nextText = "Next →" }) {
+            return (
+                <div className="flex items-center justify-between mt-12">
+                    <div>
+                        {showBack && onBack && (
+                            <button
+                                className="text-gray-600 hover:text-black transition-colors"
+                                onClick={onBack}
+                            >
+                                ← Back
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                        <button
                             className="btn-primary"
-                            onClick={onViewCanvas}
-                            disabled={!isValid}
+                            onClick={onNext}
+                            disabled={!canNext}
                         >
-                            View Your WOOP Canvas →
+                            {nextText}
                         </button>
+                        {canNext && (
+                            <span className="text-sm text-gray-400">
+                                or press Enter ↵
+                            </span>
+                        )}
                     </div>
                 </div>
             );
         }
 
         // Canvas View Component
-        function CanvasView({ data, onBack, onSubmit, onShare, onExport }) {
+        function CanvasView({ data, onBack }) {
+            const handleShare = () => {
+                alert('✅ Shared with your team! Accountability activated.');
+            };
+            
+            const handleSubmit = () => {
+                alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
+            };
+            
+            const handleExport = () => {
+                window.print();
+            };
+            
             return (
                 <div className="min-h-screen bg-white">
                     {/* Header */}
-                    <header className="border-b-4 border-black p-6 no-print">
-                        <div className="max-w-6xl mx-auto flex justify-between items-center">
+                    <header className="no-print border-b-4 border-black p-6">
+                        <div className="max-w-5xl mx-auto flex justify-between items-center">
                             <div>
                                 <h1 className="plaak text-4xl mb-2">YOUR WOOP CANVAS</h1>
                                 <p className="text-gray-600">Clarity + Energy = Action</p>
@@ -1024,46 +869,52 @@
                     </header>
                     
                     {/* Canvas */}
-                    <div className="max-w-6xl mx-auto p-6">
-                        <div className="canvas-output mb-6">
+                    <div className="max-w-5xl mx-auto p-6 py-12">
+                        <div className="border-4 border-black p-8 mb-6">
                             {/* Wish Section */}
-                            <div className="mb-8">
-                                <div className="numbered-section mb-4">[W] YOUR END GAME</div>
+                            <div className="mb-12">
+                                <div className="bg-black text-white px-4 py-2 inline-block mb-4 monument text-sm">
+                                    [W] YOUR END GAME
+                                </div>
                                 <div className="bg-green-50 border-l-4 border-green-500 p-6">
                                     <h3 className="plaak text-xl mb-2">ACHIEVED</h3>
-                                    <p className="mb-4">{data.wish.outcome}</p>
+                                    <p className="mb-4">{data.outcome}</p>
                                     
                                     <h3 className="plaak text-xl mb-2">WORLD CHANGED</h3>
-                                    <p className="mb-4">{data.wish.worldChange}</p>
+                                    <p className="mb-4">{data.worldChange}</p>
                                     
                                     <h3 className="plaak text-xl mb-2">FEELING</h3>
-                                    <p className="text-2xl font-bold">{data.wish.feeling}</p>
+                                    <p className="text-2xl font-bold">{data.feeling}</p>
                                 </div>
                             </div>
                             
                             {/* Outcomes Section */}
-                            <div className="mb-8">
-                                <div className="numbered-section mb-4">[O] THE STEPS</div>
+                            <div className="mb-12">
+                                <div className="bg-black text-white px-4 py-2 inline-block mb-4 monument text-sm">
+                                    [O] THE STEPS
+                                </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    {data.outcomes.filter(o => o.trim()).map((outcome, index) => (
+                                    {data.steps.filter(s => s.trim()).map((step, index) => (
                                         <div key={index} className="border-2 border-black p-4">
                                             <div className="monument text-xs mb-2">STEP {index + 1}</div>
-                                            <p>{outcome}</p>
+                                            <p>{step}</p>
                                         </div>
                                     ))}
                                 </div>
                                 {data.mentallyRehearsed && (
-                                    <div className="bg-black text-white p-2 mt-4 text-center">
+                                    <div className="bg-black text-white p-2 mt-4 text-center monument text-sm">
                                         ✓ MENTALLY REHEARSED
                                     </div>
                                 )}
                             </div>
                             
                             {/* Obstacles Section */}
-                            <div className="mb-8">
-                                <div className="numbered-section mb-4">[O] THE OBSTACLES</div>
+                            <div className="mb-12">
+                                <div className="bg-black text-white px-4 py-2 inline-block mb-4 monument text-sm">
+                                    [O] THE OBSTACLES
+                                </div>
                                 {data.obstacles.map((obstacle, index) => (
-                                    <div key={index} className="obstacle-item mb-3">
+                                    <div key={index} className="bg-red-50 border-l-4 border-red-500 p-4 mb-3">
                                         <div className="font-bold mb-2">
                                             Problem: {obstacle.problem}
                                         </div>
@@ -1076,14 +927,18 @@
                             
                             {/* Plan Section */}
                             <div>
-                                <div className="numbered-section mb-4">[P] THE FIRST BITE</div>
+                                <div className="bg-black text-white px-4 py-2 inline-block mb-4 monument text-sm">
+                                    [P] THE FIRST BITE
+                                </div>
                                 <div className="bg-green-50 border-4 border-green-500 p-6">
-                                    <div className="action-badge mb-4">FIRST ACTION</div>
-                                    <p className="text-xl mb-4">{data.plan.firstAction}</p>
+                                    <div className="bg-green-500 text-white px-4 py-2 inline-block mb-4 font-bold">
+                                        FIRST ACTION
+                                    </div>
+                                    <p className="text-xl mb-4">{data.firstAction}</p>
                                     <div className="flex items-center gap-4">
                                         <span className="monument text-sm">DEADLINE:</span>
                                         <span className="text-2xl font-bold">
-                                            {new Date(data.plan.deadline).toLocaleDateString('en-US', { 
+                                            {new Date(data.deadline).toLocaleDateString('en-US', { 
                                                 month: 'short', 
                                                 day: 'numeric', 
                                                 year: 'numeric' 
@@ -1096,13 +951,13 @@
                         
                         {/* Action Buttons */}
                         <div className="flex gap-4 no-print">
-                            <button onClick={onShare} className="btn-primary flex-1">
+                            <button onClick={handleShare} className="btn-primary flex-1">
                                 Share With Team
                             </button>
-                            <button onClick={onExport} className="btn-secondary flex-1">
+                            <button onClick={handleExport} className="btn-secondary flex-1">
                                 Export PDF
                             </button>
-                            <button onClick={onSubmit} className="btn-primary flex-1">
+                            <button onClick={handleSubmit} className="btn-primary flex-1">
                                 Final Submit
                             </button>
                         </div>
