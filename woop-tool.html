@@ -8,6 +8,8 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         @font-face {
@@ -444,7 +446,7 @@
                     {step === 0 && (
                         <div className="relative min-h-screen flex items-center justify-center">
                             <img 
-                                src="get out of the box.jpg" 
+                                src="asoggetti-sXPbIgVcmW4-unsplash.jpg" 
                                 alt="Fast Track" 
                                 className="absolute inset-0 w-full h-full object-cover"
                             />
@@ -955,8 +957,55 @@
                 alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
             };
 
-            const handleExport = () => {
-                window.print();
+            const handleExport = async () => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // PAGE 1: Cover Image
+                const coverImg = new Image();
+                coverImg.src = 'asoggetti-sXPbIgVcmW4-unsplash.jpg';
+                
+                await new Promise((resolve) => {
+                    coverImg.onload = () => {
+                        // Add cover image to fill entire first page
+                        const imgWidth = 210; // A4 width in mm
+                        const imgHeight = 297; // A4 height in mm
+                        pdf.addImage(coverImg, 'JPEG', 0, 0, imgWidth, imgHeight);
+                        
+                        // Add "YOUR WOOP CANVAS" text overlay
+                        pdf.setFontSize(32);
+                        pdf.setTextColor(255, 255, 255);
+                        pdf.text('YOUR WOOP CANVAS', 105, 280, { align: 'center' });
+                        
+                        resolve();
+                    };
+                });
+
+                // PAGE 2: Canvas Content
+                pdf.addPage();
+                
+                // Capture the canvas content
+                const canvasElement = document.querySelector('.max-w-6xl .border-4');
+                const canvas = await html2canvas(canvasElement, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 190; // Slightly less than A4 width for margins
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Add canvas content with margins
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+
+                // Save the PDF
+                const today = new Date().toISOString().split('T')[0];
+                pdf.save(`WOOP-Canvas-${today}.pdf`);
             };
 
             return (
