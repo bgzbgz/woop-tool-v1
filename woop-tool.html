@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         @font-face {
@@ -239,9 +240,103 @@
             );
         }
 
+        // Initialize Supabase
+        const SUPABASE_URL = 'https://otxqruhjttgvoxmufjim.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90eHFydWhqdHRndm94bXVmamltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU4MDI2MDAsImV4cCI6MjA4MTM3ODYwMH0.l0DeNI0GxAw5evgRsvvtV1qb42CX2HUOOPzUEpW2uTY';
+        const N8N_WEBHOOK_URL = 'https://n8n-edge.fasttrack-diagnostic.com/webhook/tool-submit';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Login Screen Component
+        function LoginScreen() {
+            const [email, setEmail] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [message, setMessage] = useState('');
+
+            const handleLogin = async (e) => {
+                e.preventDefault();
+                
+                if (!email) {
+                    setMessage('Please enter your email address');
+                    return;
+                }
+
+                setLoading(true);
+                setMessage('');
+
+                try {
+                    const { error } = await supabase.auth.signInWithOtp({
+                        email: email,
+                        options: {
+                            emailRedirectTo: window.location.origin
+                        }
+                    });
+
+                    if (error) throw error;
+
+                    setMessage('✅ Check your email for the magic link!');
+                    setEmail('');
+                } catch (error) {
+                    setMessage('❌ Error: ' + error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
+                    <div className="max-w-md w-full">
+                        <div className="text-center mb-12">
+                            <h1 className="plaak text-7xl mb-4">WOOP TOOL</h1>
+                            <p className="text-2xl text-gray-400">Fast Track Program</p>
+                        </div>
+
+                        <div className="bg-white text-black p-8 border-4 border-white">
+                            <h2 className="plaak text-3xl mb-6">SIGN IN</h2>
+                            
+                            <form onSubmit={handleLogin}>
+                                <div className="mb-6">
+                                    <label className="block mb-3 text-lg font-bold">Email Address</label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="your@email.com"
+                                        className="w-full p-4 text-xl border-2 border-black"
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-black text-white plaak text-2xl py-4 px-6 border-4 border-black hover:bg-white hover:text-black transition-all disabled:opacity-50"
+                                >
+                                    {loading ? 'SENDING...' : 'SEND MAGIC LINK'}
+                                </button>
+                            </form>
+
+                            {message && (
+                                <div className={`mt-6 p-4 text-center text-lg ${message.includes('✅') ? 'bg-green-100' : 'bg-red-100'}`}>
+                                    {message}
+                                </div>
+                            )}
+
+                            <p className="mt-6 text-sm text-gray-600 text-center">
+                                We'll send you a magic link to sign in. No password needed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         function WOOPTool() {
             const [step, setStep] = useState(0); // 0=cover, 0.5=intro, 1-4=steps, 999=canvas
             const [showHelp, setShowHelp] = useState(false);
+            const [session, setSession] = useState(null);
+            const [userProfile, setUserProfile] = useState(null);
+            const [loading, setLoading] = useState(true);
             
             // Data state
             const [data, setData] = useState({
@@ -286,6 +381,46 @@
                 };
             }, [data, step]);
             
+            // Check authentication
+            useEffect(() => {
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                    setSession(session);
+                    if (session) {
+                        fetchUserProfile(session.user.id);
+                    } else {
+                        setLoading(false);
+                    }
+                });
+
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                    setSession(session);
+                    if (session) {
+                        fetchUserProfile(session.user.id);
+                    }
+                });
+
+                return () => subscription.unsubscribe();
+            }, []);
+
+            // Fetch user profile
+            const fetchUserProfile = async (userId) => {
+                try {
+                    const { data, error } = await supabase
+                        .from('user_profiles')
+                        .select('*')
+                        .eq('id', userId)
+                        .single();
+                    
+                    if (error) throw error;
+                    setUserProfile(data);
+                } catch (error) {
+                    console.error('Error fetching profile:', error);
+                    alert('Profile not found. Please contact your administrator.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
             // Load saved data
             useEffect(() => {
                 const saved = localStorage.getItem('woopData');
@@ -429,6 +564,44 @@
                 }
                 return null;
             };
+
+            // Show loading screen
+            if (loading) {
+                return (
+                    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+                        <div className="text-center">
+                            <h1 className="plaak text-6xl mb-4 animate-pulse">LOADING...</h1>
+                            <p className="text-xl">Checking authentication</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Show login screen if not authenticated
+            if (!session) {
+                return <LoginScreen />;
+            }
+
+            // Show profile warning if no company
+            if (!userProfile || !userProfile.company_id) {
+                return (
+                    <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
+                        <div className="max-w-md text-center">
+                            <h1 className="plaak text-6xl mb-6">⚠️</h1>
+                            <h2 className="plaak text-4xl mb-4">Profile Incomplete</h2>
+                            <p className="text-xl mb-6">
+                                Your account is not associated with a company. Please contact your administrator.
+                            </p>
+                            <button 
+                                onClick={() => supabase.auth.signOut()} 
+                                className="bg-white text-black px-8 py-4 text-xl font-bold"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
 
             return (
                 <div className="min-h-screen bg-white">
@@ -629,6 +802,8 @@
                     {step === 999 && <CanvasView 
                         data={data}
                         onBack={() => setStep(4)}
+                        session={session}
+                        userProfile={userProfile}
                     />}
                 </div>
             );
@@ -948,13 +1123,53 @@
         }
 
         // Canvas View Component
-        function CanvasView({ data, onBack }) {
+        function CanvasView({ data, onBack, session, userProfile }) {
+            const [submitting, setSubmitting] = useState(false);
+
             const handleShare = () => {
                 alert('✅ Shared with your team! Accountability activated.');
             };
 
-            const handleSubmit = () => {
-                alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
+            const handleSubmit = async () => {
+                if (!session || !userProfile) {
+                    alert('Please log in to submit your WOOP plan.');
+                    return;
+                }
+
+                setSubmitting(true);
+
+                try {
+                    const token = session.access_token;
+                    
+                    const response = await fetch(N8N_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            user_id: session.user.id,
+                            company_id: userProfile.company_id,
+                            tool_id: 'woop',
+                            data: data,
+                            version: '1.0'
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
+                        console.log('Submission successful:', result);
+                    } else {
+                        throw new Error(result.message || 'Submission failed');
+                    }
+                } catch (error) {
+                    console.error('Submission error:', error);
+                    alert('Failed to submit. Please try again. Error: ' + error.message);
+                } finally {
+                    setSubmitting(false);
+                }
             };
 
             const handleExport = async () => {
@@ -1138,8 +1353,12 @@
                             <button onClick={handleExport} className="btn-secondary flex-1 text-lg py-4">
                                 Export PDF
                             </button>
-                            <button onClick={handleSubmit} className="btn-primary flex-1 text-lg py-4">
-                                Final Submit
+                            <button 
+                                onClick={handleSubmit} 
+                                className="btn-primary flex-1 text-lg py-4"
+                                disabled={submitting}
+                            >
+                                {submitting ? 'Submitting...' : 'Final Submit'}
                             </button>
                         </div>
 

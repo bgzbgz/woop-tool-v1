@@ -1,0 +1,404 @@
+{
+  "name": "woop",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tool-submit",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        176
+      ],
+      "id": "dd9db8a6-7f92-4702-a689-ce2d66ec6f0e",
+      "name": "Webhook",
+      "webhookId": "16a17885-cb2c-4c20-876d-cac5cca361f0",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jN4I3EftDA3iGW08",
+          "name": "Header Auth account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract data from webhook\nconst body = $input.item.json.body;\nconst headers = $input.item.json.headers;\n\n// Validate required fields\nif (!body.user_id || !body.company_id || !body.tool_id || !body.data) {\n  throw new Error('Missing required fields: user_id, company_id, tool_id, or data');\n}\n\n// Validate Supabase JWT token (optional but recommended)\nconst authHeader = headers.authorization;\nif (!authHeader || !authHeader.startsWith('Bearer ')) {\n  throw new Error('Missing or invalid Authorization header');\n}\n\n// Extract tool name from tool_id (for readability)\nconst toolNames = {\n  'woop': 'WOOP Tool',\n  'market-size': 'Market Size Tool',\n  'tool-3': 'Tool 3',\n  // Add more as you create tools\n};\n\n// Return clean, structured data\nreturn {\n  user_id: body.user_id,\n  company_id: body.company_id,\n  tool_id: body.tool_id,\n  tool_name: toolNames[body.tool_id] || body.tool_id,\n  response_data: body.data,\n  version: body.version || '1.0',\n  created_at: new Date().toISOString(),\n  auth_token: authHeader.replace('Bearer ', '')\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        176
+      ],
+      "id": "724d8ad1-02e6-43ef-a3b5-a8b4484bb688",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tool_id }}",
+                    "rightValue": "woop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "176fb46a-4af4-4738-958f-9bf2ccc1865c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c4e53dd0-e344-4af8-b0dc-19c039473f99",
+                    "leftValue": "={{ $json.tool_id }}",
+                    "rightValue": "market-size",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "0f03207e-057a-47ea-8cc3-1775e468b225",
+                    "leftValue": "={{ $json.tool_id }}",
+                    "rightValue": "core activities",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        160
+      ],
+      "id": "4de7c4f7-cf04-42ed-a128-6275c33592eb",
+      "name": "Route by Tool ID"
+    },
+    {
+      "parameters": {
+        "tableId": "tool_responses",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.user_id }}"
+            },
+            {
+              "fieldId": "company_id",
+              "fieldValue": "={{ $json.company_id }}"
+            },
+            {
+              "fieldId": "tool_name",
+              "fieldValue": "={{ $json.tool_name }}"
+            },
+            {
+              "fieldId": "response_data",
+              "fieldValue": "={{ $json.response_data }}"
+            },
+            {
+              "fieldId": "version",
+              "fieldValue": "={{ $json.version }}"
+            },
+            {
+              "fieldId": "tool_id",
+              "fieldValue": "={{ $json.tool_id }} "
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        272,
+        16
+      ],
+      "id": "cb58b44b-51d2-4bcb-bbdd-aea8b6b0fb69",
+      "name": "Save to Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5fRanrDYKdwOvx5h",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "=   {\n     \"success\": true,\n     \"message\": \"Tool data saved successfully\",\n     \"tool_id\": \"{{ $('Route by Tool ID').item.json.tool_id }}\"\n   }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        848,
+        224
+      ],
+      "id": "dd24aa70-e719-4362-81dd-8a3101688ceb",
+      "name": "Success Response"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        528,
+        208
+      ],
+      "id": "39853ecf-0fd5-43fe-98ec-6a2d3fbda7b9",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "tableId": "tool_responses",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.user_id }}"
+            },
+            {
+              "fieldId": "company_id",
+              "fieldValue": "={{ $json.company_id }}"
+            },
+            {
+              "fieldId": "tool_name",
+              "fieldValue": "={{ $json.tool_name }}"
+            },
+            {
+              "fieldId": "response_data",
+              "fieldValue": "={{ $json.response_data }}"
+            },
+            {
+              "fieldId": "version",
+              "fieldValue": "={{ $json.version }}"
+            },
+            {
+              "fieldId": "tool_id",
+              "fieldValue": "={{ $json.tool_id }} "
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        272,
+        176
+      ],
+      "id": "a1889215-45c2-445b-ba17-3daef0cc7278",
+      "name": "Save to Supabase1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5fRanrDYKdwOvx5h",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "tool_responses",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.user_id }}"
+            },
+            {
+              "fieldId": "company_id",
+              "fieldValue": "={{ $json.company_id }}"
+            },
+            {
+              "fieldId": "tool_name",
+              "fieldValue": "={{ $json.tool_name }}"
+            },
+            {
+              "fieldId": "response_data",
+              "fieldValue": "={{ $json.response_data }}"
+            },
+            {
+              "fieldId": "version",
+              "fieldValue": "={{ $json.version }}"
+            },
+            {
+              "fieldId": "tool_id",
+              "fieldValue": "={{ $json.tool_id }} "
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        272,
+        320
+      ],
+      "id": "da91e4ba-786a-4cb0-975d-a78191ba63ad",
+      "name": "Save to Supabase2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "5fRanrDYKdwOvx5h",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Route by Tool ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Tool ID": {
+      "main": [
+        [
+          {
+            "node": "Save to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save to Supabase1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save to Supabase2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Supabase1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Save to Supabase2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "251a3778-d1a2-4746-9e22-7c381f15fbf5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51f038016172110edf8b4016b318fd229a876eea5ef46b51b740d7167ba1dfb4"
+  },
+  "id": "Y6AjKlAiEnPAqkQX",
+  "tags": []
+}
