@@ -1163,31 +1163,23 @@
                 setSubmitting(true);
 
                 try {
-                    const token = session.access_token;
-                    
-                    const response = await fetch(N8N_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
+                    // Save directly to Supabase - no n8n needed!
+                    const { data: result, error } = await supabase
+                        .from('tool_responses')
+                        .insert({
                             user_id: session.user.id,
-                            company_id: userProfile.company_id || 'no-company',
+                            company_id: userProfile.company_id || null,
                             tool_id: 'woop',
-                            data: data,
+                            tool_name: 'WOOP Tool',
+                            response_data: data,
                             version: '1.0'
                         })
-                    });
+                        .select();
 
-                    const result = await response.json();
+                    if (error) throw error;
 
-                    if (response.ok) {
-                        alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
-                        console.log('Submission successful:', result);
-                    } else {
-                        throw new Error(result.message || 'Submission failed');
-                    }
+                    alert('🎉 WOOP Plan Submitted! Your clarity and energy are locked in.');
+                    console.log('Submission successful:', result);
                 } catch (error) {
                     console.error('Submission error:', error);
                     alert('Failed to submit. Please try again. Error: ' + error.message);
